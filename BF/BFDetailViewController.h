@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Contacts.h"
+#import "Trade.h"
 
 @interface BFDetailViewController : UIViewController
 
-@property (strong, nonatomic) id detailItem;
+@property (strong, nonatomic) Contacts *contact;
 
-@property (weak, nonatomic) IBOutlet UILabel *detailDescriptionLabel;
+- (void)setDetailItem:(Contacts *)pContact;
+
 @end

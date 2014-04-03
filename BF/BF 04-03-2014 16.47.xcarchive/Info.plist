@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ApplicationProperties</key>
+	<dict>
+		<key>ApplicationPath</key>
+		<string>Applications/BF.app</string>
+		<key>CFBundleIdentifier</key>
+		<string>BFBetweenFriends</string>
+		<key>CFBundleShortVersionString</key>
+		<string>1.0</string>
+		<key>CFBundleVersion</key>
+		<string>1.0</string>
+		<key>IconPaths</key>
+		<array>
+			<string>Applications/BF.app/BFAppIcon@2x.png</string>
+			<string>Applications/BF.app/BFAppIcon.png</string>
+			<string>Applications/BF.app/Setting.png</string>
+			<string>Applications/BF.app/Spotlight.png</string>
+		</array>
+		<key>SigningIdentity</key>
+		<string>iPhone Developer: Romain DONON (5RCWJB5GSF)</string>
+	</dict>
+	<key>ArchiveVersion</key>
+	<integer>2</integer>
+	<key>CreationDate</key>
+	<date>2014-03-04T15:47:34Z</date>
+	<key>Name</key>
+	<string>BF</string>
+	<key>SchemeName</key>
+	<string>BF</string>
+</dict>
+</plist>

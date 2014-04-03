@@ -8,7 +8,9 @@
 
 #import "BFMasterViewController.h"
 
-#import "BFDetailViewController.h"
+#import "BFDetailTableViewController.h"
+
+#import <iAd/iAd.h>
 
 @interface BFMasterViewController ()
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
@@ -23,57 +25,71 @@
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
-	// Do any additional setup after loading the view, typically from a nib.
-  self.navigationItem.leftBarButtonItem = self.editButtonItem;
+  [super viewDidLoad];
+  self.canDisplayBannerAds = YES;
+  _contactArray = [[NSMutableArray alloc] init];
+  UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
+  image.frame = self.view.window.frame;
+  self.tableView.backgroundView =  image;
+  
+  /*------- CoreData -------*/
+  id qDelegate              = [[UIApplication sharedApplication] delegate];
+  self.managedObjectContext = [qDelegate managedObjectContext];
 
-  UIBarButtonItem *addButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(insertNewObject:)];
-  self.navigationItem.rightBarButtonItem = addButton;
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+
+  [self updateContactArray];
+}
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
-- (void)insertNewObject:(id)sender
-{
-    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
-    NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
-    
-    // If appropriate, configure the new managed object.
-    // Normally you should use accessor methods, but using KVC here avoids the need to add a custom class to the template.
-    [newManagedObject setValue:[NSDate date] forKey:@"timeStamp"];
-    
-    // Save the context.
-    NSError *error = nil;
-    if (![context save:&error]) {
-         // Replace this implementation with code to handle the error appropriately.
-         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development. 
-        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-        abort();
-    }
-}
+
+//- (void)insertNewObject:(id)sender
+//{
+//    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
+//    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
+//    NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
+//    
+//    // If appropriate, configure the new managed object.
+//    // Normally you should use accessor methods, but using KVC here avoids the need to add a custom class to the template.
+//    [newManagedObject setValue:[NSDate date] forKey:@"timeStamp"];
+//    
+//    // Save the context.
+//    NSError *error = nil;
+//    if (![context save:&error]) {
+//         // Replace this implementation with code to handle the error appropriately.
+//         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development. 
+//        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+//        abort();
+//    }
+//}
 
 #pragma mark - Table View
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-  return [[self.fetchedResultsController sections] count];
+  return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-  id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
-  return [sectionInfo numberOfObjects];
+//  id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
+//  return [sectionInfo numberOfObjects];
+  NSLog(@" contact array count : %lu", (unsigned long)[_contactArray count]);
+  return [_contactArray count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
   [self configureCell:cell atIndexPath:indexPath];
+  
     return cell;
 }
 
@@ -86,17 +102,23 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-        [context deleteObject:[self.fetchedResultsController objectAtIndexPath:indexPath]];
-        
-        NSError *error = nil;
-        if (![context save:&error]) {
-             // Replace this implementation with code to handle the error appropriately.
-             // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development. 
-            NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-            abort();
-        }
-    }   
+      NSMutableDictionary *qDico = [_contactArray objectAtIndex:indexPath.row];
+      Contacts *qContact = [qDico valueForKey:CONTACTDICO_CONTACT];
+      for (Trade *qTrade in qContact.trades) {
+        [_managedObjectContext deleteObject:qTrade];
+      }
+      [_managedObjectContext deleteObject:qContact];
+      [_contactArray removeObjectAtIndex:indexPath.row];
+      [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+      
+      /*
+       * save core data
+       */
+      NSError *error = nil;
+      [self.managedObjectContext save:&error];
+
+      
+    }
 }
 
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
@@ -109,8 +131,13 @@
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
         NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-        NSManagedObject *object = [[self fetchedResultsController] objectAtIndexPath:indexPath];
-        [[segue destinationViewController] setDetailItem:object];
+      NSMutableDictionary *qDico = [_contactArray objectAtIndex:indexPath.row];
+      Contacts *object = [qDico valueForKey:CONTACTDICO_CONTACT];
+      NSMutableArray *qArray = [NSMutableArray array];
+      for (Trade *qTrade in object.trades) {
+        [qArray addObject:qTrade];
+      }
+      [[segue destinationViewController] setInfo:qArray withContact:object];
     }
 }
 
@@ -215,8 +242,46 @@
 
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-    NSManagedObject *object = [self.fetchedResultsController objectAtIndexPath:indexPath];
-    cell.textLabel.text = [[object valueForKey:@"timeStamp"] description];
+  NSMutableDictionary *qDico = [_contactArray objectAtIndex:indexPath.row];
+  Contacts *qContact = [qDico valueForKey:CONTACTDICO_CONTACT];
+  cell.textLabel.text = [NSString stringWithFormat:@" %@ %@", qContact.firstName, qContact.lastName];
+  cell.detailTextLabel.numberOfLines = 2;
+  cell.detailTextLabel.textAlignment = NSTextAlignmentCenter;
+  cell.detailTextLabel.text = [NSString stringWithFormat:@" %d €\n%d Objets", [[qDico valueForKey:CONTACTDICO_MONEY] intValue],[[qDico valueForKey:CONTACTDICO_OBJECT] intValue]];
+}
+
+#pragma mark - Uptade methode
+
+- (void)updateContactArray
+{
+  NSError *qError;
+  NSFetchRequest *fetchRequest    = [[NSFetchRequest alloc] init];
+  NSEntityDescription *contactEntity = [NSEntityDescription entityForName:COREDATA_ENTITY_CONTACTS
+                                                   inManagedObjectContext:self.managedObjectContext];
+  [fetchRequest setEntity:contactEntity];
+  NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&qError];
+  NSLog(@"NOMBRE DE CONTACT DANS COREDATA %lu", (unsigned long)[fetchedObjects count]);
+  
+  [_contactArray removeAllObjects];
+  for (Contacts *qContact in fetchedObjects) {
+    NSMutableDictionary *qDico = [NSMutableDictionary dictionary];
+    [qDico setObject:qContact forKey:CONTACTDICO_CONTACT];
+    int numberOfObject = 0;
+    int total = 0;
+    for (Trade *qTrade in qContact.trades) {
+      if ([qTrade.type  intValue] == 0) {
+        if ([qTrade.way intValue] == 0) {
+          total -= [qTrade.value intValue];
+        } else total += [qTrade.value intValue];
+      } else numberOfObject += 1;
+    }
+    [qDico setObject:[NSNumber numberWithInt:total] forKey:CONTACTDICO_MONEY];
+    [qDico setObject:[NSNumber numberWithInt:numberOfObject] forKey:CONTACTDICO_OBJECT];
+    [_contactArray addObject:qDico];
+    
+  }
+  [self.tableView reloadData];
+  [self.tableView reloadInputViews];
 }
 
 @end

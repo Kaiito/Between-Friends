@@ -9,8 +9,14 @@
 #import <UIKit/UIKit.h>
 
 #import <CoreData/CoreData.h>
+#import "Constants.h"
+#import "Contacts.h"
+#import "Trade.h"
 
 @interface BFMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate>
+{
+  NSMutableArray *_contactArray;
+}
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;
