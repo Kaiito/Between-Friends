@@ -14,9 +14,6 @@
 #import "Trade.h"
 
 @interface BFMasterViewController : UITableViewController <NSFetchedResultsControllerDelegate>
-{
-  NSMutableArray *_contactArray;
-}
 
 @property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 @property (strong, nonatomic) NSManagedObjectContext *managedObjectContext;

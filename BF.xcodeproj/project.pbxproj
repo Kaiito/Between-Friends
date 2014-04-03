@@ -32,7 +32,6 @@
 		32BFF8E518B7900000EC0CCC /* BFAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFF8E418B7900000EC0CCC /* BFAppDelegate.m */; };
 		32BFF8E818B7900000EC0CCC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFF8E618B7900000EC0CCC /* Main.storyboard */; };
 		32BFF8EE18B7900000EC0CCC /* BFMasterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFF8ED18B7900000EC0CCC /* BFMasterViewController.m */; };
-		32BFF8F318B7900000EC0CCC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32BFF8F218B7900000EC0CCC /* Images.xcassets */; };
 		32BFF8FA18B7900000EC0CCC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFF8F918B7900000EC0CCC /* XCTest.framework */; };
 		32BFF8FB18B7900000EC0CCC /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFF8D218B7900000EC0CCC /* Foundation.framework */; };
 		32BFF8FC18B7900000EC0CCC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFF8D618B7900000EC0CCC /* UIKit.framework */; };
@@ -107,7 +106,6 @@
 		32BFF8E718B7900000EC0CCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		32BFF8EC18B7900000EC0CCC /* BFMasterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BFMasterViewController.h; sourceTree = "<group>"; };
 		32BFF8ED18B7900000EC0CCC /* BFMasterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BFMasterViewController.m; sourceTree = "<group>"; };
-		32BFF8F218B7900000EC0CCC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32BFF8F818B7900000EC0CCC /* BFTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BFTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BFF8F918B7900000EC0CCC /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		32BFF90218B7900000EC0CCC /* BFTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BFTests-Info.plist"; sourceTree = "<group>"; };
@@ -260,7 +258,6 @@
 				321E1B1A18B7E9DC00ED0CCB /* Constants.h */,
 				32BFF8E318B7900000EC0CCC /* BFAppDelegate.h */,
 				32BFF8E418B7900000EC0CCC /* BFAppDelegate.m */,
-				32BFF8F218B7900000EC0CCC /* Images.xcassets */,
 				324B4BE818BA224500D33F6A /* View */,
 				324B4BE918BA227300D33F6A /* Data */,
 				32BFF8DB18B7900000EC0CCC /* Supporting Files */,
@@ -414,7 +411,6 @@
 				325C650018C60C4900E8E6D6 /* BFAppIcon.png in Resources */,
 				32BFF97818B79AD200EC0CCC /* bt_save_selected@2x.png in Resources */,
 				32BFF94C18B79AD200EC0CCC /* bg.png in Resources */,
-				32BFF8F318B7900000EC0CCC /* Images.xcassets in Resources */,
 				32BFF97E18B79AD200EC0CCC /* textfield@2x.png in Resources */,
 				32BFF95718B79AD200EC0CCC /* bt_contact_selected.png in Resources */,
 				32BFF97718B79AD200EC0CCC /* bt_save_selected.png in Resources */,

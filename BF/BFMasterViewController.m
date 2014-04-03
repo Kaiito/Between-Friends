@@ -13,7 +13,9 @@
 #import <iAd/iAd.h>
 
 @interface BFMasterViewController ()
-- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath;
+
+@property (nonatomic, strong) NSMutableArray *contactArray;
+
 @end
 
 @implementation BFMasterViewController
@@ -26,84 +28,74 @@
 - (void)viewDidLoad
 {
   [super viewDidLoad];
+  
+  //iAds
   self.canDisplayBannerAds = YES;
-  _contactArray = [[NSMutableArray alloc] init];
-  UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
-  image.frame = self.view.window.frame;
+  
+  _contactArray  = [[NSMutableArray alloc] init];
+  
+  // Background view
+  UIImageView *image            = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bg.png"]];
+  image.frame                   = self.view.window.frame;
   self.tableView.backgroundView =  image;
   
-  /*------- CoreData -------*/
+  // Core Data
   id qDelegate              = [[UIApplication sharedApplication] delegate];
   self.managedObjectContext = [qDelegate managedObjectContext];
 
 }
 
+
 - (void)viewWillAppear:(BOOL)animated
 {
-
+  [super viewWillAppear:animated];
+  
   [self updateContactArray];
 }
+
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
-//- (void)insertNewObject:(id)sender
-//{
-//    NSManagedObjectContext *context = [self.fetchedResultsController managedObjectContext];
-//    NSEntityDescription *entity = [[self.fetchedResultsController fetchRequest] entity];
-//    NSManagedObject *newManagedObject = [NSEntityDescription insertNewObjectForEntityForName:[entity name] inManagedObjectContext:context];
-//    
-//    // If appropriate, configure the new managed object.
-//    // Normally you should use accessor methods, but using KVC here avoids the need to add a custom class to the template.
-//    [newManagedObject setValue:[NSDate date] forKey:@"timeStamp"];
-//    
-//    // Save the context.
-//    NSError *error = nil;
-//    if (![context save:&error]) {
-//         // Replace this implementation with code to handle the error appropriately.
-//         // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development. 
-//        NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-//        abort();
-//    }
-//}
-
-#pragma mark - Table View
+#pragma mark - Table View datasource & delegate
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
   return 1;
 }
 
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-//  id <NSFetchedResultsSectionInfo> sectionInfo = [self.fetchedResultsController sections][section];
-//  return [sectionInfo numberOfObjects];
-  NSLog(@" contact array count : %lu", (unsigned long)[_contactArray count]);
   return [_contactArray count];
 }
 
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
+  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
   [self configureCell:cell atIndexPath:indexPath];
   
-    return cell;
+  return cell;
 }
+
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
+  return YES;
 }
+
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-      NSMutableDictionary *qDico = [_contactArray objectAtIndex:indexPath.row];
-      Contacts *qContact = [qDico valueForKey:CONTACTDICO_CONTACT];
+      
+      NSMutableDictionary *qDico  = [_contactArray objectAtIndex:indexPath.row];
+      Contacts *qContact          = [qDico valueForKey:CONTACTDICO_CONTACT];
+      
       for (Trade *qTrade in qContact.trades) {
         [_managedObjectContext deleteObject:qTrade];
       }
@@ -111,33 +103,34 @@
       [_contactArray removeObjectAtIndex:indexPath.row];
       [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
       
-      /*
-       * save core data
-       */
+      // Save Data
       NSError *error = nil;
       [self.managedObjectContext save:&error];
-
-      
     }
 }
 
+
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // The table view should not be re-orderable.
-    return NO;
+  return NO;
 }
+
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([[segue identifier] isEqualToString:@"showDetail"]) {
-        NSIndexPath *indexPath = [self.tableView indexPathForSelectedRow];
-      NSMutableDictionary *qDico = [_contactArray objectAtIndex:indexPath.row];
-      Contacts *object = [qDico valueForKey:CONTACTDICO_CONTACT];
-      NSMutableArray *qArray = [NSMutableArray array];
-      for (Trade *qTrade in object.trades) {
+      
+      //Get contact
+      NSIndexPath *indexPath      = [self.tableView indexPathForSelectedRow];
+      NSMutableDictionary *qDico  = [_contactArray objectAtIndex:indexPath.row];
+      Contacts *contact           = [qDico valueForKey:CONTACTDICO_CONTACT];
+      NSMutableArray *qArray      = [NSMutableArray array];
+      
+      for (Trade *qTrade in contact.trades) {
         [qArray addObject:qTrade];
       }
-      [[segue destinationViewController] setInfo:qArray withContact:object];
+      
+      [[segue destinationViewController] setInfo:qArray withContact:contact];
     }
 }
 
@@ -150,6 +143,7 @@
     }
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+  
     // Edit the entity name as appropriate.
     NSEntityDescription *entity = [NSEntityDescription entityForName:@"Event" inManagedObjectContext:self.managedObjectContext];
     [fetchRequest setEntity:entity];
@@ -230,16 +224,12 @@
     [self.tableView endUpdates];
 }
 
-/*
-// Implementing the above methods to update the table view in response to individual changes may have performance implications if a large number of changes are made simultaneously. If this proves to be an issue, you can instead just implement controllerDidChangeContent: which notifies the delegate that all section and object changes have been processed. 
- 
- - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
-{
-    // In the simplest, most efficient, case, reload the table view.
-    [self.tableView reloadData];
-}
+/**
+ *  Methods use for adapting UITableViewCell for MasterView TableView, We use the contactArray property to refers the target Data
+ *
+ *  @param cell      The cell who needs to be modify
+ *  @param indexPath the Index of the cell in the TableView
  */
-
 - (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
   NSMutableDictionary *qDico = [_contactArray objectAtIndex:indexPath.row];
@@ -252,6 +242,10 @@
 
 #pragma mark - Uptade methode
 
+/**
+ *  Upate Contact saved in CoreData and save them in contactArray.
+ *  Each Contact will be check for type and way properties.
+ */
 - (void)updateContactArray
 {
   NSError *qError;
@@ -260,26 +254,34 @@
                                                    inManagedObjectContext:self.managedObjectContext];
   [fetchRequest setEntity:contactEntity];
   NSArray *fetchedObjects = [self.managedObjectContext executeFetchRequest:fetchRequest error:&qError];
-  NSLog(@"NOMBRE DE CONTACT DANS COREDATA %lu", (unsigned long)[fetchedObjects count]);
   
   [_contactArray removeAllObjects];
   for (Contacts *qContact in fetchedObjects) {
+    
     NSMutableDictionary *qDico = [NSMutableDictionary dictionary];
     [qDico setObject:qContact forKey:CONTACTDICO_CONTACT];
     int numberOfObject = 0;
     int total = 0;
+    
     for (Trade *qTrade in qContact.trades) {
       if ([qTrade.type  intValue] == 0) {
         if ([qTrade.way intValue] == 0) {
           total -= [qTrade.value intValue];
-        } else total += [qTrade.value intValue];
-      } else numberOfObject += 1;
+        }
+        else {
+          total += [qTrade.value intValue];
+        }
+      }
+      else {
+        numberOfObject += 1;
+      }
     }
-    [qDico setObject:[NSNumber numberWithInt:total] forKey:CONTACTDICO_MONEY];
+    
+    [qDico setObject:[NSNumber numberWithInt:total]          forKey:CONTACTDICO_MONEY];
     [qDico setObject:[NSNumber numberWithInt:numberOfObject] forKey:CONTACTDICO_OBJECT];
     [_contactArray addObject:qDico];
-    
   }
+  
   [self.tableView reloadData];
   [self.tableView reloadInputViews];
 }
